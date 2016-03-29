@@ -112,17 +112,20 @@ if __name__ == '__main__':
         def model_maxpool_lrn(data):# with local respond normalization
             conv = tf.nn.conv2d(data, layer1_weights, [1, 1, 1, 1], padding='SAME')
             hidden = tf.nn.relu(conv + layer1_biases)
+            hidden = tf.nn.dropout(hidden, 0.5)
             lrn_b = tf.nn.local_response_normalization(hidden,bias=2, alpha=0.0001, beta=0.75)
             maxpool = tf.nn.max_pool(lrn_b, [1, 2, 2, 1], [1, 2, 2, 1], padding='SAME')
 
             conv = tf.nn.conv2d(maxpool, layer2_weights, [1, 1, 1, 1], padding='SAME')
             hidden = tf.nn.relu(conv + layer2_biases)
+            hidden = tf.nn.dropout(hidden, 0.5)
             lrn_b = tf.nn.local_response_normalization(hidden,bias=2, alpha=0.0001, beta=0.75)
             maxpool = tf.nn.max_pool(lrn_b, [1, 2, 2, 1], [1, 2, 2, 1], padding='SAME')
 
             shape = maxpool.get_shape().as_list()
             reshape = tf.reshape(maxpool, [shape[0], shape[1] * shape[2] * shape[3]])
             hidden = tf.nn.relu(tf.matmul(reshape, layer3_weights) + layer3_biases)
+            hidden = tf.nn.dropout(hidden, 0.5)
             return tf.matmul(hidden, layer4_weights) + layer4_biases
 
         # Training computation.
@@ -132,7 +135,10 @@ if __name__ == '__main__':
         tf.nn.softmax_cross_entropy_with_logits(logits, tf_train_labels))
 
         # Optimizer.
-        optimizer = tf.train.GradientDescentOptimizer(0.05).minimize(loss)
+        global_step = tf.Variable(10001, trainable=False)
+        starter_learning_rate = 0.05
+        learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step,400, 0.99, staircase=True)
+        optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss)
 
         # Predictions for the training, validation, and test data.
         train_prediction = tf.nn.softmax(logits)
@@ -155,12 +161,13 @@ if __name__ == '__main__':
             batch_labels = train_labels[offset:(offset + batch_size), :]
             feed_dict = {tf_train_dataset : batch_data, tf_train_labels : batch_labels}
 
-            _, l, predictions = session.run(
-              [optimizer, loss, train_prediction], feed_dict=feed_dict)
+            _,k, l, predictions = session.run(
+              [optimizer,learning_rate,loss, train_prediction], feed_dict=feed_dict)
 
             if (step % 50 == 0):
-                print(' Offset = ' + str(offset))
+                print('\nOffset = ' + str(offset))
                 print('Minibatch loss at step %d: %f' % (step, l))
+                print('learning_rate\t',k)
                 print('Minibatch accuracy: %.1f%%' % accuracy(predictions, batch_labels))
                 print('Validation accuracy: %.1f%%' % accuracy(
                 valid_prediction.eval(), valid_labels))
