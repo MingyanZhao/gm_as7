@@ -125,7 +125,7 @@ if __name__ == '__main__':
 #==============================================================================
             
         # Training computation.
-        logits = model_maxpool(tf_train_dataset, True)
+        logits = model(tf_train_dataset, True)
         loss = tf.reduce_mean(
           tf.nn.softmax_cross_entropy_with_logits(logits, tf_train_labels))
         
@@ -134,8 +134,8 @@ if __name__ == '__main__':
       
       # Predictions for the training, validation, and test data.
         train_prediction = tf.nn.softmax(logits)
-        valid_prediction = tf.nn.softmax(model_maxpool(tf_valid_dataset))
-        test_prediction = tf.nn.softmax(model_maxpool(tf_test_dataset))
+        valid_prediction = tf.nn.softmax(model(tf_valid_dataset))
+        test_prediction = tf.nn.softmax(model(tf_test_dataset))
     
     num_steps = 10001
     with tf.Session(graph=graph) as session:
