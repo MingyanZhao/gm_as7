@@ -103,7 +103,7 @@ if __name__ == '__main__':
         tf.nn.softmax_cross_entropy_with_logits(logits, tf_train_labels))
 
         # learning rate decay
-        global_step = tf.Variable(1001, trainable=False)
+        global_step = tf.Variable(10001, trainable=False)
         starter_learning_rate = 0.05
         learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step,10, 0.99, staircase=True)
         optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss,global_step=global_step)
@@ -120,7 +120,7 @@ if __name__ == '__main__':
 
     #graph = build_graph(batch_size, patch_size, depth, num_hidden)
 
-    num_steps = 1001
+    num_steps = 10001
 
     with tf.Session(graph=graph) as session:
         tf.initialize_all_variables().run()
