@@ -149,7 +149,7 @@ if __name__ == '__main__':
 
     #graph = build_graph(batch_size, patch_size, depth, num_hidden)
 
-    num_steps = 1001
+    num_steps = 10001
 
     with tf.Session(graph=graph) as session:
         tf.initialize_all_variables().run()
