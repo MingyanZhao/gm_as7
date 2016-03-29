@@ -105,7 +105,7 @@ if __name__ == '__main__':
         # learning rate decay
         global_step = tf.Variable(10001, trainable=False)
         starter_learning_rate = 0.05
-        learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step,10, 0.99, staircase=True)
+        learning_rate = tf.train.exponential_decay(starter_learning_rate, global_step,400, 0.99, staircase=True)
         optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss,global_step=global_step)
 
         # Optimizer
