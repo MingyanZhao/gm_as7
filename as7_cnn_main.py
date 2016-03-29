@@ -2,6 +2,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import numpy as np
 import six.moves.cPickle as pickle
+import time
 
 def accuracy(predictions, labels):
     return (100.0 * np.sum(np.argmax(predictions, 1) == np.argmax(labels, 1))
@@ -154,6 +155,9 @@ if __name__ == '__main__':
     with tf.Session(graph=graph) as session:
         tf.initialize_all_variables().run()
         print('Initialized')
+        starttime = time.clock()
+        print('start time = ', starttime)
+        
         for step in range(num_steps):
             offset = (step * batch_size) % (train_labels.shape[0] - batch_size)
 
@@ -171,9 +175,11 @@ if __name__ == '__main__':
                 print('Minibatch accuracy: %.1f%%' % accuracy(predictions, batch_labels))
                 print('Validation accuracy: %.1f%%' % accuracy(
                 valid_prediction.eval(), valid_labels))
-
+                print('current time passed = ', time.clock() - starttime)
+        
         print('Test accuracy: %.1f%%' % accuracy(test_prediction.eval(), test_labels))
-
+        print('end time = ', time.clock())
+        print('total time = ', time.clock() - starttime)
 
     i = tf.constant('finished')
     print(i)
