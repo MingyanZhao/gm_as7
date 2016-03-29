@@ -65,10 +65,10 @@ if __name__ == '__main__':
           [patch_size, patch_size, num_channels, depth], stddev=0.1))
         layer1_biases = tf.Variable(tf.zeros([depth]))
         layer2_weights = tf.Variable(tf.truncated_normal(
-          [patch_size, patch_size, depth, depth], stddev=0.1))
-        layer2_biases = tf.Variable(tf.constant(1.0, shape=[depth]))
+          [patch_size, patch_size, depth, depth*2], stddev=0.1))
+        layer2_biases = tf.Variable(tf.constant(1.0, shape=[depth*2]))
         layer3_weights = tf.Variable(tf.truncated_normal(
-          [image_size // 4 * image_size // 4 * depth, num_hidden], stddev=0.1))
+          [image_size // 4 * image_size // 4 * (depth*2), num_hidden], stddev=0.1))
         layer3_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
         layer4_weights = tf.Variable(tf.truncated_normal(
           [num_hidden, num_labels], stddev=0.1))
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         def model_maxpool_lrn(data):# with local respond normalization
             conv = tf.nn.conv2d(data, layer1_weights, [1, 1, 1, 1], padding='SAME')
             hidden = tf.nn.relu(conv + layer1_biases)
-            #hidden = tf.nn.dropout(hidden, 0.5)
+            hidden = tf.nn.dropout(hidden, 0.5)
             lrn_b = tf.nn.local_response_normalization(hidden,bias=2, alpha=0.0001, beta=0.75)
             maxpool = tf.nn.max_pool(lrn_b, [1, 2, 2, 1], [1, 2, 2, 1], padding='SAME')
 
